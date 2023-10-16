@@ -1,0 +1,29 @@
+# Include all directories with Python packages and modules
+recursive-include account *
+recursive-include course *
+recursive-include exam *
+recursive-include student *
+recursive-include topic *
+recursive-include mctest *
+
+# Include all templates, static files, and locale files
+recursive-include templates *
+recursive-include static *
+recursive-include locale *
+
+# Include other relevant root files
+include README.md
+include License.txt
+include requirements_mctest.txt
+include _backup-mctest.sh
+include crontabDjango.sh
+include _myBackup.sh
+include runDjango.sh
+include run_mctest.sh
+include _settings.env
+
+# Exclude potentially unwanted files or file types
+# (adjust this section based on what you don't want to be part of your distribution)
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__/*

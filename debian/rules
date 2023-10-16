@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+SOURCE_DIR := mctest-5.3   # this should match the name of the folder inside the tarball
+TAR_FILE := dist/mctest-5.3.tar.gz
+DEST_DIR := debian/mctest2/opt/venvs/mctest
+# Uncomment to ignore all test failures (but the tests will run anyway)
+export DH_TESTS_IGNORE_FAIL="yes"
+
+%:
+	dh $@ --with python-virtualenv --python /usr/bin/python3
+
+#override_dh_auto_configure:
+#override_dh_auto_build:
+	# If there's nothing special to add, you can leave this section out
+override_dh_auto_install:
+	# Run the Python setup.py install inside the destination directory
+	# Extract the tarball directly to the destination directory without the source directory
+	mkdir -p $(DEST_DIR)
+	tar xzf $(TAR_FILE) --strip-components=1 -C $(DEST_DIR)
+	# Run the Python setup.py build inside the destination directory
+	cd $(DEST_DIR) && python3 setup.py build
+	cd $(DEST_DIR) && python3 setup.py install --root=$(PWD)/debian/mctest --install-layout=deb
+

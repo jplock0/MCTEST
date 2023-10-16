@@ -1,0 +1,75 @@
+#!/bin/sh
+
+# Define log file location
+LOG_FILE="/var/log/mctest_postinst.log"
+ERROR_LOG_FILE="/var/log/mctest_postinst_error.log"
+
+# Create or clear the log file
+: > "$LOG_FILE"
+: > "$ERROR_LOG_FILE"
+
+# Function to log error messages
+log_error() {
+    echo "ERROR: An error occurred at $(date)" >> "$ERROR_LOG_FILE"
+}
+
+# Trap any errors
+trap log_error ERR
+
+# Redirect all output to the log file
+exec >> "$LOG_FILE" 2>&1
+
+# Exit on any error
+set -e
+
+# Define the location of the virtual environment
+#VENV_PATH="/opt/mctest_venv/"
+
+MCTEST_DIR=/opt/mctest
+
+# Create the virtual environment
+#python3 -m venv $VENV_PATH
+
+# Activate the virtual environment
+#. $VENV_PATH/bin/activate
+
+# pip commands will affect only this virtual environment
+#pip install -r $MCTEST_DIR/requirements_mctest.txt
+
+# all the requirements are already listed on requirements_mctest.txt but in case it fails to install this will install the remaining of the most important packages
+#pip install django==4.2 python-dotenv django-import-export django-widget-tweaks django-extensions scikit-image==0.20.0 mysqlclient bcrypt pyqrcode matplotlib python-decouple pypdf2 opencv-python==3.4.18.65 img2pdf pandas pdf2image pyzbar arviz pymc3 mysqlclient
+
+# Deactivate the virtual environment
+#deactivate
+
+# Source the _settings.env file
+. $MCTEST_DIR/_settings.env
+
+# Start MySQL service
+systemctl start mysql
+
+# Create the database and grant privileges
+mysql -u root <<EOF
+GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost' WITH GRANT OPTION;
+CREATE DATABASE $DB_NAME;
+FLUSH PRIVILEGES;
+exit
+EOF
+
+# Modify MySQL configuration files
+sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+echo '[client]
+database = '"$DB_NAME"'
+user = '"$DB_USER"'
+password = '"$DB_PASS"'
+default-character-set = utf8' >>/etc/mysql/my.cnf
+
+# Restart MySQL service
+systemctl daemon-reload
+systemctl restart mysql
+
+# Load your database schema
+mysql -u root $DB_NAME < $MCTEST_DIR/mctest.sql
+
+exit 0
+
