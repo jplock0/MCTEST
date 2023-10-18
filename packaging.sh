@@ -36,6 +36,14 @@ dpkg-deb --contents path-to-your-deb-file.deb
 #Install and Test
 sudo dpkg -i mctest_5.3-1_all.deb
 
+# Define log file location
+LOG_FILE="/var/log/mctest_postinst.log"
+ERROR_LOG_FILE="/var/log/mctest_postinst_error.log"
+
+sudo nano /var/log/mctest_postinst.log
+
+sudo nano /var/log/mctest_postinst_error.log
+
 ls /opt/venvs/mctest
 
 #
