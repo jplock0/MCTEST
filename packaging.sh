@@ -48,7 +48,7 @@ ls /opt/venvs/mctest
 
 #
 dpkg -l | grep mctest
-sudo apt-get purge mctest
+sudo dpkg --remove --force-remove-reinstreq mctest
 sudo apt-get autoremove
 
 #sudo mk-build-deps --install debian/control
